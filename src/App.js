@@ -1,7 +1,7 @@
 import './App.css';
 import React from 'react'
 import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
-import { sample, combine } from '@turf/turf'
+import { sample } from '@turf/turf'
 
 const randomPositionInPolygon = require('random-position-in-polygon');
 const countries = require('@geo-maps/countries-coastline-100m')()
@@ -35,7 +35,7 @@ function getRandomCenter() {
 }
 
 function Game() {
-  const [center, setCenter] = React.useState(getRandomCenter())
+  const [center,] = React.useState(getRandomCenter())
 
   return <MapController center={center} />
 }
