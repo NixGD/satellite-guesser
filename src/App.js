@@ -1,14 +1,10 @@
 import './App.css';
-import React, { useCallback } from 'react'
+import React from 'react'
 import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
-import { googleMapsApiKey } from './secrets.js'
-// import { randomPositionInPolygon } from '@random-position-in-polygon'
 import { sample, combine } from '@turf/turf'
-
 
 const randomPositionInPolygon = require('random-position-in-polygon');
 const countries = require('@geo-maps/countries-coastline-100m')()
-// import { countries } from './data/countries.js'
 
 function App() {
   return (
@@ -67,7 +63,7 @@ function MapController({ center }) {
 function Map({ center, zoom, onLoad }) {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: googleMapsApiKey
+    googleMapsApiKey: process.env.REACT_APP_GMAPS_API_KEY
   })
 
   const options = {
