@@ -1,17 +1,20 @@
 import './App.css';
-import React from 'react'
+import React, { useCallback } from 'react'
 import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
 import { googleMapsApiKey } from './secrets.js'
+// import { randomPositionInPolygon } from '@random-position-in-polygon'
+import { sample, combine } from '@turf/turf'
 
+
+const randomPositionInPolygon = require('random-position-in-polygon');
+const countries = require('@geo-maps/countries-coastline-100m')()
+// import { countries } from './data/countries.js'
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <MapController />
+        <Game />
       </header>
     </div>
   );
@@ -22,57 +25,50 @@ const containerStyle = {
   height: '800px'
 };
 
-function MapController() {
-  const [zoom, setZoom] = React.useState(17)
-  // slowly zoom out map
-  const zoomOut = () => {
-    if (zoom > 0) {
-      setZoom(zoom - 0.05);
-    }
+function getRandomCenter() {
+  const chosen_country = sample(countries, 1).features[0]
+  // const all_countries = combine(countries);
+  console.log(chosen_country.properties.A3)
+  const point = randomPositionInPolygon(chosen_country);
+  const coords = {
+    lat: point[1],
+    lng: point[0]
+  }
+  console.log("new center", coords)
+  return coords
+}
+
+function Game() {
+  const [center, setCenter] = React.useState(getRandomCenter())
+
+  return <MapController center={center} />
+}
+
+function MapController({ center }) {
+  const [zoom, setZoom] = React.useState(15)
+
+  const increment_zoom = (z) => (z > 3) ? z - 0.004 : z
+
+  const start_zooming = () => {
+    const interval = setInterval(() => {
+      setZoom(increment_zoom)
+    }, 50);
+    return () => clearInterval(interval);
   }
 
-  // call zoomOut every 2 seconds
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      zoomOut();
-    }, 100);
-    return () => clearInterval(interval);
-  });
-
-  // const outlines = bbox("./countries.geojson");
-  // console.log(outlines)
-
-  const center = {
-    lat: -3.745,
-    lng: -38.523
-  };
   return (
     <div>
-      <Map center={center} zoom={zoom} />
+      <Map center={center} zoom={zoom} onLoad={start_zooming} />
     </div>
   )
 }
 
 
-function Map({ center, zoom }) {
+function Map({ center, zoom, onLoad }) {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: googleMapsApiKey
   })
-
-  const [map, setMap] = React.useState(null)
-
-  const onLoad = React.useCallback(function callback(map) {
-    // This is just an example of getting and using the map instance!!! don't just blindly copy!
-    const bounds = new window.google.maps.LatLngBounds(center);
-    map.fitBounds(bounds);
-
-    setMap(map)
-  }, [])
-
-  const onUnmount = React.useCallback(function callback(map) {
-    setMap(null)
-  }, [])
 
   const options = {
     disableDefaultUI: true,
@@ -80,17 +76,16 @@ function Map({ center, zoom }) {
     gestureHandling: "none",
     keyboardShortcuts: false,
     isFractionalZoomEnabled: true,
-    center: center,
-    zoom: zoom,
     tilt: 0,
   }
 
   return isLoaded ?
     <GoogleMap
       mapContainerStyle={containerStyle}
-      onLoad={onLoad}
-      onUnmount={onUnmount}
       options={options}
+      center={center}
+      zoom={zoom}
+      onLoad={onLoad}
     />
     : <></>
 }
