@@ -34,13 +34,18 @@ function getRandomCenter() {
   return coords
 }
 
-function Game() {
-  const [center,] = React.useState(getRandomCenter())
-
-  return <MapController center={center} />
+function getRandomHeading() {
+    return Math.floor(Math.random() * 360)
 }
 
-function MapController({ center }) {
+function Game() {
+  const [center,] = React.useState(getRandomCenter())
+  const [heading,] = React.useState(getRandomHeading())
+
+  return <MapController center={center} heading={heading} />
+}
+
+function MapController({ center, heading }) {
   const [zoom, setZoom] = React.useState(15)
 
   const increment_zoom = (z) => (z > 3) ? z - 0.004 : z
@@ -54,13 +59,13 @@ function MapController({ center }) {
 
   return (
     <div>
-      <Map center={center} zoom={zoom} onLoad={start_zooming} />
+      <Map center={center} heading={heading} zoom={zoom} onLoad={start_zooming} />
     </div>
   )
 }
 
 
-function Map({ center, zoom, onLoad }) {
+function Map({ center, heading, zoom, onLoad }) {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: process.env.REACT_APP_GMAPS_API_KEY
@@ -80,6 +85,7 @@ function Map({ center, zoom, onLoad }) {
       mapContainerStyle={containerStyle}
       options={options}
       center={center}
+      heading={heading}
       zoom={zoom}
       onLoad={onLoad}
     />
