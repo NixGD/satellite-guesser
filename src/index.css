@@ -1,10 +1,43 @@
 body {
   margin: 0;
+  overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.Border {
+  /* 800x800 region in center */
+  border-top: calc(50vh - 400px) solid rgb(80, 80, 80);
+  border-bottom: calc(50vh - 400px) solid rgb(80, 80, 80);
+  border-left: calc(50vw - 400px) solid rgb(80, 80, 80);
+  border-right: calc(50vw - 400px) solid rgb(80, 80, 80);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9990; /* Set a high z-index to ensure it's on top of other elements */
+}
+.MapsLink {
+  /* text on the bottom of the screen linking to google maps */
+  position: absolute;
+  /* these parameters affect the position of the text */
+  /* by default, it's in the bottom center of the screen */
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 1em;
+  z-index: 9992; /* over the border */
+}
+/* control color of MapsLink links that are clicked */
+.MapsLink a {
+  color: rgb(53, 140, 239);
+}
+.MapsLink a:visited {
+  color: rgb(236, 53, 239);
 }
 
 code {

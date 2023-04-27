@@ -9,6 +9,7 @@ const countries = require('@geo-maps/countries-coastline-100m')()
 function App() {
   return (
     <div className="App">
+      <div className="Border" />
       <header className="App-header">
         <Game />
       </header>
@@ -16,9 +17,29 @@ function App() {
   );
 }
 
+function getRandomHeading() {
+  return Math.floor(Math.random() * 360)
+}
+
+const angle = getRandomHeading();
+//the CSS currently shows an 800x800 window, so
+//we pick dimensions that are 1.5x as large, 
+//ie sqrt(2) with a margin of error
+const map_dims = 1200;
+
+var zoom_speed = 0.004;
+
 const containerStyle = {
-  width: '1000px',
-  height: '800px'
+  width: `${map_dims}px`,
+  height: `${map_dims}px`,
+  transform: `rotate(${angle}deg)`,
+  //position in the center of the screen
+  position: "absolute",
+  left: "50%",
+  top: "50%",
+  //then move it back by half the width and height
+  marginLeft: `-${map_dims/2}px`,
+  marginTop: `-${map_dims/2}px`,
 };
 
 function getRandomCenter() {
@@ -43,19 +64,40 @@ function Game() {
 function MapController({ center }) {
   const [zoom, setZoom] = React.useState(15)
 
-  const increment_zoom = (z) => (z > 3) ? z - 0.004 : z
+  const increment_zoom = (z) => (z > 3) ? z - zoom_speed : z
 
   const start_zooming = () => {
     const interval = setInterval(() => {
-      setZoom(increment_zoom)
+      setZoom(increment_zoom);
     }, 50);
     return () => clearInterval(interval);
   }
 
+  // add event listener to toggle zoom_speed variable when space bar is pressed
+  React.useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.code === 'Space') {
+        zoom_speed = (zoom_speed === 0) ? 0.004 : 0;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  // the map and a link to maps.google.com as a MapsLink css object
   return (
     <div>
       <Map center={center} zoom={zoom} onLoad={start_zooming} />
+      <div className="MapsLink">
+        <a href={`https://www.google.com/maps/@${center['lat']},${center['lng']},15z/data=!3m1!1e3`}>link</a>
+      </div>
     </div>
+
+
   )
 }
 
